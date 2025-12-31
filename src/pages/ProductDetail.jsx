@@ -7,7 +7,7 @@ const products = [
     name: "Zapatillas Urbanas",
     price: 199,
     slug: "zapatillas-urbanas",
-    image: "https://via.placeholder.com/600",
+    image: "https://oechsle.vteximg.com.br/arquivos/ids/23453800-1000-1000/2825045.jpg?v=639014078762430000",
     description: "Zapatillas cómodas y modernas para uso diario.",
   },
   {
@@ -15,7 +15,7 @@ const products = [
     name: "Reloj Moderno",
     price: 149,
     slug: "reloj-moderno",
-    image: "https://via.placeholder.com/600",
+    image: "https://relojeriaperu.com/cdn/shop/files/25888014_fpx.webp?v=1730133484&width=500",
     description: "Reloj elegante ideal para cualquier ocasión.",
   },
 ];

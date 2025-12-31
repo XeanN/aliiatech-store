@@ -1,19 +1,15 @@
+import Button from "../../components/Button";
+
 export default function Login() {
   const handleLogin = () => {
     localStorage.setItem("admin", "true");
-    window.location.href = "/admin/dashboard";
+    window.location.href = "/#/admin/dashboard";
   };
 
   return (
-    <div className="container">
-      <h1>Login Admin</h1>
-
-      <button
-        onClick={handleLogin}
-        style={{ padding: "12px 20px", marginTop: "20px" }}
-      >
-        Ingresar como Admin
-      </button>
+    <div style={{ maxWidth: "400px", margin: "60px auto" }}>
+      <h2>Login Admin</h2>
+      <Button onClick={handleLogin}>Ingresar al Dashboard</Button>
     </div>
   );
 }

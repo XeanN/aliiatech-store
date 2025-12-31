@@ -10,6 +10,7 @@ import Checkout from "./pages/Checkout";
 // Admin
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
+import ProductsAdmin from "./pages/admin/ProductsAdmin";
 
 // Layout
 import Header from "./components/Header";
@@ -39,6 +40,14 @@ function App() {
           element={
             <AdminRoute>
               <Dashboard />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/products"
+          element={
+            <AdminRoute>
+              <ProductsAdmin />
             </AdminRoute>
           }
         />

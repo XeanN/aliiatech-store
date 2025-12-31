@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
+import { useTheme } from "../theme/ThemeContext";
+import Button from "./Button";
 
 export default function ProductCard({ product }) {
+  const { theme } = useTheme();
+
   return (
     <div
       style={{
-        border: "1px solid #eee",
-        borderRadius: "10px",
-        padding: "15px",
-        background: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
+        borderRadius: theme.radius.md,
+        boxShadow: theme.shadow.card,
+        background: theme.colors.background,
+        padding: theme.spacing.md,
+        transition: "0.3s",
       }}
     >
       <img
@@ -18,21 +20,32 @@ export default function ProductCard({ product }) {
         alt={product.name}
         style={{
           width: "100%",
-          height: "180px",
-          objectFit: "cover",
-          borderRadius: "8px",
+          borderRadius: theme.radius.sm,
+          marginBottom: theme.spacing.sm,
         }}
       />
 
-      <h3>{product.name}</h3>
-      <strong>S/ {product.price}</strong>
+      <h3
+        style={{
+          fontFamily: theme.font.heading,
+          color: theme.colors.text,
+        }}
+      >
+        {product.name}
+      </h3>
+
+      <p
+        style={{
+          color: theme.colors.muted,
+          marginBottom: theme.spacing.sm,
+        }}
+      >
+        S/ {product.price}
+      </p>
 
       <Link to={`/producto/${product.slug}`}>
-        <button style={{ width: "100%" }}>
-          Ver producto
-        </button>
+        <Button>Ver producto</Button>
       </Link>
     </div>
-
   );
 }
