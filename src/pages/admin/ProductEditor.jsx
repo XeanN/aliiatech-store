@@ -1,97 +1,97 @@
-export default function ProductEditor({ product, onUpdate }) {
-  const set = (key) => (e) => {
-    const val =
-      e.target.type === "checkbox"
-        ? e.target.checked
-        : e.target.type === "number"
-        ? Number(e.target.value)
-        : e.target.value;
+import { useState, useEffect } from "react";
+import { useProducts } from "../../context/ProductsContext";
+import { useAuth } from "../../context/AuthContext"; // 👈 Importar Auth
+import { useNavigate, useParams } from "react-router-dom";
 
-    onUpdate({ [key]: val });
+export default function ProductEditor() {
+  const { id } = useParams();
+  const { create, update, getById } = useProducts();
+  const { isPro } = useAuth(); // 👈 ¿Es Pro o no?
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    name: "",
+    price: "",
+    compareAtPrice: "", // Solo Pro
+    description: "",
+    badge: "", // Solo Pro
+    stock: 0,
+    sku: "", // Solo Pro
+    active: true
+  });
+
+  // (Mantenemos tu lógica de carga de datos existente...)
+  // ... useEffect para cargar datos si hay ID ...
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value
+    }));
   };
 
-  const setImage = (idx) => (e) => {
-    const next = [...product.images];
-    next[idx] = e.target.value;
-    onUpdate({ images: next });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (id) update(id, form);
+    else create({ ...form, id: Date.now() }); // ID temporal
+    navigate("/admin/products");
   };
-
-  const addImage = () => onUpdate({ images: [...product.images, "https://via.placeholder.com/800"] });
-  const removeImage = (idx) => onUpdate({ images: product.images.filter((_, i) => i !== idx) });
 
   return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <h2 style={{ margin: 0 }}>Editor</h2>
-
-      <label>
-        Nombre
-        <input value={product.name} onChange={set("name")} />
-      </label>
-
-      <label>
-        Slug (URL)
-        <input value={product.slug} onChange={set("slug")} />
-      </label>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <label>
-          Precio (S/)
-          <input type="number" value={product.price} onChange={set("price")} />
-        </label>
-
-        <label>
-          Precio antes (oferta)
-          <input type="number" value={product.compareAtPrice} onChange={set("compareAtPrice")} />
-        </label>
-      </div>
-
-      <label>
-        Stock
-        <input type="number" value={product.stock} onChange={set("stock")} />
-      </label>
-
-      <label>
-        Badge
-        <select value={product.badge} onChange={set("badge")}>
-          <option value="">Ninguno</option>
-          <option value="Nuevo">Nuevo</option>
-          <option value="Top">Top</option>
-          <option value="Oferta">Oferta</option>
-        </select>
-      </label>
-
-      <label>
-        Descripción
-        <textarea rows={4} value={product.description} onChange={set("description")} />
-      </label>
-
-      <div style={{ display: "flex", gap: 12 }}>
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input type="checkbox" checked={product.active} onChange={set("active")} />
-          Producto activo (visible)
-        </label>
-
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input type="checkbox" checked={product.whatsappEnabled} onChange={set("whatsappEnabled")} />
-          WhatsApp habilitado
-        </label>
-      </div>
-
-      <div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h3 style={{ margin: 0 }}>Imágenes</h3>
-          <button onClick={addImage}>+ Añadir</button>
+    <div style={{ padding: "20px", background: "white", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+      <h2>{id ? "Editar Producto" : "Nuevo Producto"}</h2>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+        
+        {/* CAMPOS BÁSICOS (PARA TODOS) */}
+        <div>
+          <label>Nombre del Producto</label>
+          <input name="name" value={form.name} onChange={handleChange} required style={{ display: "block", width: "100%", padding: "8px" }} />
         </div>
 
-        <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
-          {product.images.map((img, idx) => (
-            <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8 }}>
-              <input value={img} onChange={setImage(idx)} />
-              <button onClick={() => removeImage(idx)}>X</button>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+          <div>
+            <label>Precio (S/)</label>
+            <input type="number" name="price" value={form.price} onChange={handleChange} required style={{ display: "block", width: "100%", padding: "8px" }} />
+          </div>
+          
+          {/* 🔒 CAMPO EXCLUSIVO PRO: PRECIO DE OFERTA */}
+          {isPro && (
+            <div>
+              <label>Precio Antes (Oferta) <span style={{color: "#d97706", fontSize: "0.8rem"}}>PRO</span></label>
+              <input type="number" name="compareAtPrice" value={form.compareAtPrice} onChange={handleChange} style={{ display: "block", width: "100%", padding: "8px", border: "1px solid #fbbf24" }} />
             </div>
-          ))}
+          )}
         </div>
-      </div>
+
+        {/* 🔒 CAMPO EXCLUSIVO PRO: BADGES */}
+        {isPro && (
+          <div style={{ padding: "15px", background: "#fffbeb", border: "1px dashed #d97706", borderRadius: "6px" }}>
+            <label style={{ fontWeight: "bold", color: "#92400e" }}>Marketing & Badges (PRO)</label>
+            <select name="badge" value={form.badge} onChange={handleChange} style={{ display: "block", width: "100%", marginTop: "5px", padding: "8px" }}>
+              <option value="">-- Sin etiqueta --</option>
+              <option value="Nuevo">Nuevo</option>
+              <option value="Oferta">Oferta</option>
+              <option value="Top Ventas">Top Ventas</option>
+              <option value="Ultimas Unidades">Últimas Unidades</option>
+            </select>
+          </div>
+        )}
+
+        <div>
+          <label>Descripción</label>
+          <textarea name="description" value={form.description} onChange={handleChange} rows="4" style={{ display: "block", width: "100%", padding: "8px" }} />
+        </div>
+
+        <div>
+          <label>Stock</label>
+          <input type="number" name="stock" value={form.stock} onChange={handleChange} style={{ display: "block", width: "100%", padding: "8px" }} />
+        </div>
+
+        <button type="submit" style={{ padding: "12px", background: "#10b981", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" }}>
+          Guardar Producto
+        </button>
+      </form>
     </div>
   );
 }

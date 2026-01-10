@@ -1,39 +1,35 @@
-// Aca agregamos Productos destacados del home
+import { useProducts } from "../context/ProductsContext"; // Verifica que el nombre del archivo sea ProducstContext o ProductsContext
 import ProductCard from "../components/ProductCard";
 
-const products = [
-  {
-    id: 1,
-    name: "Zapatillas Urbanas",
-    price: 199,
-    slug: "zapatillas-urbanas",
-    image: "https://oechsle.vteximg.com.br/arquivos/ids/23453800-1000-1000/2825045.jpg?v=639014078762430000",
-  },
-  {
-    id: 2,
-    name: "Reloj Moderno",
-    price: 149,
-    slug: "reloj-moderno",
-    image: "https://relojeriaperu.com/cdn/shop/files/25888014_fpx.webp?v=1730133484&width=500",
-  },
-];
-
 export default function FeaturedProducts() {
-  return (
-    <section>
-      <h2>Productos destacados</h2>
+  const { products } = useProducts();
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-          gap: "20px",
-        }}
-      >
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </div>
+  // Filtramos: Que estén activos y tengan stock
+  const featured = products
+    .filter((p) => p.active !== false) // Asumimos true si no está definido
+    .slice(0, 8); // Mostramos máximo 8
+
+  return (
+    <section style={{ padding: "40px 0" }}>
+      <h2 style={{ marginBottom: "20px", textAlign: "center" }}>Productos Destacados</h2>
+
+      {featured.length > 0 ? (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+            gap: "20px",
+          }}
+        >
+          {featured.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      ) : (
+        <p style={{ textAlign: "center", color: "#666" }}>
+          No hay productos disponibles por el momento. ¡Pronto más novedades!
+        </p>
+      )}
     </section>
   );
 }

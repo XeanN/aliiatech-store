@@ -1,4 +1,4 @@
-import { useProducts } from "../../context/ProducstContext";
+import { useProducts } from "../../context/ProductsContext";
 
 export default function ProductTable({ products }) {
   const { deleteProduct } = useProducts();

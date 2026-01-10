@@ -1,120 +1,50 @@
-import { useCart } from "../context/CartContext";
-import { useState } from "react";
+  import { useState } from "react";
+  import { useCart } from "../context/CartContext";
 
-export default function Checkout() {
-  const { cart } = useCart();
+  // NOTA: En un SaaS real, esto vendría de la configuración global de la tienda (ShopContext)
+  // Por ahora, simulamos que esta tienda está en modo "BASIC" (WhatsApp)
+  const SHOP_MODE = "BASIC"; 
 
-  const [customer, setCustomer] = useState({
-    name: "",
-    phone: "",
-    address: "",
-  });
+  export default function Checkout() {
+    const { cart, cartTotal, clearCart } = useCart();
+    const [formData, setFormData] = useState({ name: "", phone: "", address: "" });
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+    if (cart.length === 0) return <div style={{ padding: "50px", textAlign: "center" }}><h2>Tu carrito está vacío 🛒</h2></div>;
 
-  const handleChange = (e) => {
-    setCustomer({ ...customer, [e.target.name]: e.target.value });
-  };
+    const handleSubmit = (e) => {
+      e.preventDefault();
 
-const whatsappMessage = `
-Hola, quiero realizar un pedido 🛒
+      if (SHOP_MODE === "BASIC") {
+        // MODO WHATSAPP
+        const phone = "51999999999"; // Número del dueño
+        let msg = `Hola, quiero pedir:\n`;
+        cart.forEach(i => msg += `• ${i.name} (x${i.quantity})\n`);
+        msg += `\nTotal: S/ ${cartTotal}\n\nDatos:\n${formData.name}\n${formData.address}`;
+        
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+        clearCart();
+      } else {
+        // MODO PRO (Pasarela)
+        alert("Redirigiendo a pasarela de pagos... (Simulado)");
+      }
+    };
 
-📦 Productos:
-${cart
-  .map(
-    (item) =>
-      `- ${item.name} x${item.quantity} — S/ ${
-        item.price * item.quantity
-      }`
-  )
-  .join("\n")}
+    return (
+      <div style={{ maxWidth: "500px", margin: "40px auto", padding: "20px" }}>
+        <h1>Finalizar Compra</h1>
+        <div style={{ background: "#F3F4F6", padding: "15px", borderRadius: "8px", marginBottom: "20px" }}>
+          <p style={{ margin: 0 }}>Total a pagar: <strong>S/ {cartTotal}</strong></p>
+        </div>
 
-💰 Total: S/ ${total}
-
-👤 Cliente:
-Nombre: ${customer.name}
-Teléfono: ${customer.phone}
-Dirección: ${customer.address}
-`;
-const isFormValid = customer.name && customer.phone && customer.address;
-
-  if (cart.length === 0) {
-    return <h2>Tu carrito está vacío</h2>;
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+          <input required placeholder="Nombre Completo" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} style={{ padding: "12px", borderRadius: "6px", border: "1px solid #ccc" }} />
+          <input required placeholder="Teléfono" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={{ padding: "12px", borderRadius: "6px", border: "1px solid #ccc" }} />
+          <textarea required placeholder="Dirección de entrega" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} style={{ padding: "12px", borderRadius: "6px", border: "1px solid #ccc" }} />
+          
+          <button type="submit" style={{ padding: "15px", background: SHOP_MODE === "BASIC" ? "#25D366" : "#111", color: "white", border: "none", borderRadius: "6px", fontWeight: "bold", fontSize: "1rem", cursor: "pointer" }}>
+            {SHOP_MODE === "BASIC" ? "📲 Enviar Pedido por WhatsApp" : "💳 Pagar Ahora"}
+          </button>
+        </form>
+      </div>
+    );
   }
-
-  return (
-    <div className="container">
-      <h1>Checkout</h1>
-
-      <h3>Datos del cliente</h3>
-
-      <div style={{ display: "grid", gap: "10px", maxWidth: "400px" }}>
-      <input
-        type="text"
-        name="name"
-        placeholder="Nombre completo"
-        value={customer.name}
-        onChange={handleChange}
-      />
-
-      <input
-        type="text"
-        name="phone"
-        placeholder="Teléfono"
-        value={customer.phone}
-        onChange={handleChange}
-      />
-
-      <input
-        type="text"
-        name="address"
-        placeholder="Dirección"
-        value={customer.address}
-        onChange={handleChange}
-      />
-    </div>
-
-
-      <h3>Resumen</h3>
-
-      {cart.map((item) => (
-        <p key={item.id}>
-          {item.name} x{item.quantity} — S/{" "}
-          {item.price * item.quantity}
-        </p>
-      ))}
-
-      <h2>Total: S/ {total}</h2>
-
-      <a
-        href={
-            isFormValid
-            ? `https://wa.me/51969980152?text=${encodeURIComponent(
-                whatsappMessage
-                )}`
-            : "#"
-        }
-        target="_blank"
-        rel="noopener noreferrer"
-        >
-        <button
-            disabled={!isFormValid}
-            style={{
-            padding: "14px",
-            fontSize: "16px",
-            marginTop: "20px",
-            width: "100%",
-            opacity: isFormValid ? 1 : 0.5,
-            cursor: isFormValid ? "pointer" : "not-allowed",
-            }}
-        >
-            Finalizar por WhatsApp
-        </button>
-      </a>
-
-    </div>
-  );
-}
