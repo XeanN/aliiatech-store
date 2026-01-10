@@ -21,7 +21,7 @@ export default function HeroSection() {
         color: "#fff",
       }}
     >
-      <h1>{config.title || "Tu tienda online"}</h1>
+      <h1>{config.title || "Bienvenido a Aliiatech Store"}</h1>
       <p>{config.subtitle || "Compra fácil y rápido"}</p>
 
       <Link to="/tienda">

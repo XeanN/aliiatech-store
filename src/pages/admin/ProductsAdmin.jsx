@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
-import { useProducts } from "../../context/ProducstContext";
+// ✅ CORRECCIÓN 1: Asegúrate de que el archivo en src/context/ se llame "ProductsContext.jsx"
+import { useProducts } from "../../context/ProductsContext"; 
 import ProductEditor from "./ProductEditor";
 import PreviewPanel from "./PreviewPanel";
+// ✅ CORRECCIÓN 2: Importamos el Layout para que aparezca el menú lateral
+import AdminLayout from "../../components/admin/AdminLayout";
 
 export default function ProductsAdmin() {
   const { products, create, update, remove } = useProducts();
@@ -32,66 +35,71 @@ export default function ProductsAdmin() {
   };
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "320px 1fr 420px", gap: 16, padding: 16 }}>
-      {/* Sidebar */}
-      <aside style={{ borderRight: "1px solid #eee", paddingRight: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <h2 style={{ margin: 0 }}>Productos</h2>
-          <button onClick={handleNew}>+ Nuevo</button>
-        </div>
-
-        <div style={{ display: "grid", gap: 10 }}>
-          {products.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setSelectedId(p.id)}
-              style={{
-                textAlign: "left",
-                padding: 10,
-                borderRadius: 10,
-                border: p.id === selectedId ? "2px solid #333" : "1px solid #ddd",
-                background: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              <div style={{ fontWeight: 700 }}>{p.name}</div>
-              <div style={{ fontSize: 12, opacity: 0.7 }}>
-                {p.active ? "Activo" : "Oculto"} · Stock {p.stock}
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {selected && (
-          <div style={{ marginTop: 16 }}>
-            <button
-              onClick={() => {
-                if (confirm("¿Eliminar producto?")) {
-                  remove(selected.id);
-                  setSelectedId(products[1]?.id || null);
-                }
-              }}
-              style={{ width: "100%", padding: 10 }}
-            >
-              Eliminar
-            </button>
+    // ✅ CORRECCIÓN 3: Envolvemos todo en AdminLayout
+    <AdminLayout>
+      <div style={{ display: "grid", gridTemplateColumns: "320px 1fr 420px", gap: 16, height: "calc(100vh - 100px)" }}>
+        
+        {/* Sidebar interna de productos */}
+        <aside style={{ borderRight: "1px solid #eee", paddingRight: 12, overflowY: "auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <h2 style={{ margin: 0 }}>Productos</h2>
+            <button onClick={handleNew} style={{ cursor: "pointer", padding: "5px 10px" }}>+ Nuevo</button>
           </div>
-        )}
-      </aside>
 
-      {/* Editor */}
-      <section>
-        {selected ? (
-          <ProductEditor product={selected} onUpdate={(patch) => update(selected.id, patch)} />
-        ) : (
-          <p>No hay producto seleccionado.</p>
-        )}
-      </section>
+          <div style={{ display: "grid", gap: 10 }}>
+            {products.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setSelectedId(p.id)}
+                style={{
+                  textAlign: "left",
+                  padding: 10,
+                  borderRadius: 10,
+                  border: p.id === selectedId ? "2px solid #333" : "1px solid #ddd",
+                  background: p.id === selectedId ? "#f0f0f0" : "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                <div style={{ fontWeight: 700 }}>{p.name}</div>
+                <div style={{ fontSize: 12, opacity: 0.7 }}>
+                  {p.active ? "Activo" : "Oculto"} · Stock {p.stock}
+                </div>
+              </button>
+            ))}
+          </div>
 
-      {/* Preview Live */}
-      <section>
-        {selected ? <PreviewPanel product={selected} /> : null}
-      </section>
-    </div>
+          {selected && (
+            <div style={{ marginTop: 16 }}>
+              <button
+                onClick={() => {
+                  if (confirm("¿Eliminar producto?")) {
+                    remove(selected.id);
+                    // Evitar error si borras el último
+                    setSelectedId(products.find(p => p.id !== selected.id)?.id || null);
+                  }
+                }}
+                style={{ width: "100%", padding: 10, background: "#fee2e2", color: "red", border: "none", borderRadius: "6px", cursor: "pointer" }}
+              >
+                Eliminar
+              </button>
+            </div>
+          )}
+        </aside>
+
+        {/* Editor Central */}
+        <section style={{ overflowY: "auto" }}>
+          {selected ? (
+            <ProductEditor product={selected} onUpdate={(patch) => update(selected.id, patch)} />
+          ) : (
+            <p style={{ textAlign: "center", marginTop: 20 }}>Selecciona un producto.</p>
+          )}
+        </section>
+
+        {/* Preview Panel (Derecha) */}
+        <section style={{ overflowY: "auto" }}>
+          {selected ? <PreviewPanel product={selected} /> : null}
+        </section>
+      </div>
+    </AdminLayout>
   );
 }

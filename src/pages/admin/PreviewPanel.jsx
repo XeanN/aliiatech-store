@@ -1,7 +1,11 @@
-import ProductCard from "../../components/ProductCard/ProductCard";
+// ✅ CORRECCIÓN: Apuntamos al archivo ProductCard.jsx directo (borrando la repetición del final)
+import ProductCard from "../../components/ProductCard";
 
 export default function PreviewPanel({ product }) {
-  const showOffer = product.compareAtPrice > product.price && product.price > 0;
+  // Calculamos si se debe mostrar oferta (usando ambas variables posibles)
+  const comparePrice = parseFloat(product.compareAtPrice || product.comparePrice || 0);
+  const currentPrice = parseFloat(product.price);
+  const showOffer = comparePrice > currentPrice && currentPrice > 0;
 
   return (
     <div style={{ borderLeft: "1px solid #eee", paddingLeft: 12 }}>
@@ -15,10 +19,10 @@ export default function PreviewPanel({ product }) {
         <div style={{ fontWeight: 800, fontSize: 18 }}>{product.name}</div>
 
         <div style={{ marginTop: 8, display: "flex", gap: 10, alignItems: "baseline" }}>
-          <span style={{ fontSize: 20, fontWeight: 900 }}>S/ {product.price}</span>
+          <span style={{ fontSize: 20, fontWeight: 900 }}>S/ {currentPrice}</span>
           {showOffer && (
             <span style={{ textDecoration: "line-through", opacity: 0.6 }}>
-              S/ {product.compareAtPrice}
+              S/ {comparePrice}
             </span>
           )}
         </div>
